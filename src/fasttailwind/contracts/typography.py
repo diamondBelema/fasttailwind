@@ -19,3 +19,11 @@ class TypographyScheme:
             raise NotImplementedError(
                 f"{cls.__name__} missing required typography tokens: {missing}"
             )
+        wrong_type = [
+            a for a in cls._required if not isinstance(getattr(cls, a), str)
+        ]
+        if wrong_type:
+            raise TypeError(
+                f"{cls.__name__} has non-string typography tokens (expected str like "
+                f"'text-sm' or 'font-bold'): {wrong_type}"
+            )
