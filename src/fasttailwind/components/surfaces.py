@@ -10,11 +10,13 @@ class Card:
     def __init__(
         self, *children: Any, variant: str = "default",
         padding: str | dict[str, str] | None = None,
+        radius: str = "lg",
         class_: str | None = None, **kwargs: Any,
     ) -> None:
         self._children = children
         self._variant = variant
         self._padding = padding
+        self._radius = radius
         self._class = class_
         self._kwargs = kwargs
 
@@ -28,7 +30,8 @@ class Card:
                 if isinstance(self._padding, dict)
                 else f"p-{resolver.spacing(self._padding)}"
             )
-        classes = cn(variant_cls, pad_cls, self._class)
+        radius_cls = resolver.radius(self._radius) if self._radius else None
+        classes = cn(radius_cls, variant_cls, pad_cls, self._class)
         return html.div(*self._children, class_=classes, **self._kwargs)
 
 
