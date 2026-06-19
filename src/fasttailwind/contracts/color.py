@@ -20,3 +20,11 @@ class ColorScheme:
             raise NotImplementedError(
                 f"{cls.__name__} missing required color tokens: {missing}"
             )
+        wrong_type = [
+            a for a in cls._required if not isinstance(getattr(cls, a), str)
+        ]
+        if wrong_type:
+            raise TypeError(
+                f"{cls.__name__} has non-string color tokens (expected str like "
+                f"'violet' or 'zinc-500'): {wrong_type}"
+            )
