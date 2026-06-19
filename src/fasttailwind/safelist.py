@@ -1,6 +1,15 @@
 """Generate safelist for Tailwind CSS purge configuration."""
 from __future__ import annotations
+import re
 from .contracts.theme import ThemeScheme
+
+# Shades to generate for "bare hue" color tokens (e.g. colors.primary = "violet",
+# with no shade suffix). Components are free to combine a bare hue with any of
+# these shades (e.g. f"text-{theme.colors.primary}-500"). If you reach for a
+# shade outside this list in your own components, add it here too.
+_BARE_HUE_SHADES = (400, 500, 600, 700)
+
+_HAS_SHADE = re.compile(r"-\d{2,3}$")
 
 
 def safelist(theme: ThemeScheme) -> list[str]:
@@ -20,14 +29,25 @@ def safelist(theme: ThemeScheme) -> list[str]:
         if attr_name.startswith("_"):
             continue
         val = getattr(colors, attr_name)
-        if isinstance(val, str):
-            classes.add(val)
+        if not isinstance(val, str):
+            continue
+
+        # Bare hue (e.g. "violet", no shade) — expand across known shades.
+        # A token with no shade suffix isn't a valid standalone Tailwind class
+        # (e.g. "text-violet" doesn't exist), so only emit it combined with a shade.
+        if not _HAS_SHADE.search(val):
+            variants = [f"{val}-{shade}" for shade in _BARE_HUE_SHADES]
+        else:
+            variants = [val]
+
+        for v in variants:
+            classes.add(v)
             for prefix in ("bg", "text", "border", "ring", "fill", "stroke",
                            "from", "to", "via", "caret", "accent", "shadow"):
-                classes.add(f"{prefix}-{val}")
+                classes.add(f"{prefix}-{v}")
             for state in ("hover", "focus", "active", "disabled", "dark"):
                 for prefix in ("bg", "text", "border", "ring"):
-                    classes.add(f"{state}:{prefix}-{val}")
+                    classes.add(f"{state}:{prefix}-{v}")
 
     typography = theme.typography
     for attr_name in dir(typography):
