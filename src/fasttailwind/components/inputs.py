@@ -15,6 +15,7 @@ class Button:
         *,
         variant: str = "primary",
         size: str = "md",
+        radius: str = "md",
         disabled: bool = False,
         class_: str | None = None,
         **kwargs: Any,
@@ -22,6 +23,7 @@ class Button:
         self._label = label
         self._variant = variant
         self._size = size
+        self._radius = radius
         self._disabled = disabled
         self._class = class_
         self._kwargs = kwargs
@@ -31,8 +33,9 @@ class Button:
         variant_cls = resolver.variant("button", self._variant)
         size_cls = resolver.size("button", self._size)
         classes = cn(
-            "inline-flex items-center justify-center rounded-md font-medium transition-colors "
+            "inline-flex items-center justify-center font-medium transition-colors "
             "focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",
+            resolver.radius(self._radius),
             variant_cls,
             size_cls,
             self._class,
@@ -56,6 +59,7 @@ class TextField:
         placeholder: str | None = None,
         value: str | None = None,
         variant: str = "default",
+        radius: str = "md",
         disabled: bool = False,
         class_: str | None = None,
         **kwargs: Any,
@@ -65,6 +69,7 @@ class TextField:
         self._placeholder = placeholder
         self._value = value
         self._variant = variant
+        self._radius = radius
         self._disabled = disabled
         self._class = class_
         self._kwargs = kwargs
@@ -73,7 +78,8 @@ class TextField:
         resolver = context["resolver"]
         variant_cls = resolver.variant("input", self._variant)
         classes = cn(
-            "block w-full rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2",
+            "block w-full shadow-sm transition-colors focus:outline-none focus:ring-2",
+            resolver.radius(self._radius),
             variant_cls,
             self._class,
         )
@@ -98,6 +104,7 @@ class Select:
         options: list[tuple[str, str]],
         value: str | None = None,
         variant: str = "default",
+        radius: str = "md",
         disabled: bool = False,
         class_: str | None = None,
         **kwargs: Any,
@@ -106,6 +113,7 @@ class Select:
         self._options = options
         self._value = value
         self._variant = variant
+        self._radius = radius
         self._disabled = disabled
         self._class = class_
         self._kwargs = kwargs
@@ -114,7 +122,8 @@ class Select:
         resolver = context["resolver"]
         variant_cls = resolver.variant("input", self._variant)
         classes = cn(
-            "block w-full rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2",
+            "block w-full shadow-sm transition-colors focus:outline-none focus:ring-2",
+            resolver.radius(self._radius),
             variant_cls,
             self._class,
         )
@@ -153,10 +162,13 @@ class Checkbox:
 
     def htmy(self, context: Context) -> Component:
         theme = context["theme"]
+        resolver = context["resolver"]
         checkbox = html.input_(
             class_=cn(
-                "h-4 w-4 rounded border-gray-300 focus:ring-2",
-                f"text-{theme.colors.primary}-600 focus:ring-{theme.colors.primary}-500",
+                "h-4 w-4 focus:ring-2",
+                resolver.radius("sm"),
+                f"border-{theme.colors.border_default}",
+                f"text-{theme.colors.primary}-500 focus:ring-{theme.colors.primary}-500",
                 self._class,
             ),
             type="checkbox",
